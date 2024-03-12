@@ -1,0 +1,147 @@
+#Music21 y su configuración para musescore
+
+from music21 import *  #Importar todas las funciones de music21
+us = environment.UserSettings()
+us['musescoreDirectPNGPath'] = '/usr/bin/mscore'  #Ruta de musescore
+us['directoryScratch'] = '/tmp'
+
+
+import pandas as pd
+
+
+class cuartas:
+
+    """
+    Clase para trabajar con partituras  y obtener información de las mismas
+
+    """
+
+    
+
+    def __init__(self, archivo):
+        
+        """
+        Constructor de la clase
+        :param archivo: archivo xml de la partitura
+        
+        Se debe tener importado 'Pandas' y 'music21'
+
+        """
+
+        self.archivo = archivo  #Path de la partitura
+        self.s = converter.parse(archivo) #Lectura del archivo
+
+        #Listas para guardar la info de la partitura
+        self.acordes = []
+        self.beats = []
+        self.notas = []
+        self.intervalos = []
+        self.compas = []
+        self.division = []
+        self.tipo_div = []
+
+    def mostrar_partitura(self):
+        
+        """
+        Método para mostrar la partitura
+        """
+        self.s.show()
+
+
+    def chordify(self):
+        
+        """
+        Método para realizar chordify a toda la partitura,
+        juntar todas las notas que suenan simultaneamente
+
+        """
+
+        self.s = self.s.chordify()
+        return self.s
+    
+    def asignar_intervalos(self):
+        
+        """
+
+        Método para asignar los intervalos dentro de la partitura
+
+        """
+
+        for c in self.s.recurse().getElementsByClass('Chord'):
+            #Esta opción es para que quedén en la misma octava 
+            # c.closedPosition(forceOctave=4, inPlace=True) 
+            c.annotateIntervals(inPlace=True)
+
+    def mostrar_intervalos(self):
+
+        """ 
+        Método para mostar en pantalla los acordes y sus intervalos
+
+        """
+        for c in self.s.recurse().getElementsByClass('Chord'):
+            print(c, end=" ")
+            for l in c.lyrics:
+                print(l.text, end=" ")
+            print()
+
+    def extraer_acordes(self):
+
+        """
+        Método que guarda todos los acordes de la partitura en el 
+        atributo 'acordes'.
+        """
+        
+        for c in self.s.recurse().getElementsByClass('Chord'):
+            self.acordes.append(c)
+        return self.acordes
+    
+
+    #Método que no sirvió xd
+    # def extraer_intervalos(self):
+    #     self.intervalos = []
+    #     for c in self.extraer_acordes():
+    
+    #         for l in c.lyrics:
+    #             self.intervalos.append(int(l.text))
+
+    #     return self.intervalos   
+    
+    def extraer_df(self):
+
+        """
+
+        Método para extraer un dataframe con la información de la partitura
+        :return: dataframe con la información de la partitura
+
+        ¡¡IMPORTANTE!!:
+
+        El método de 'extraer_df' dentro llama a los métodos 'chordify', 
+        'asignar_intervalos' y 'extraer_acordes' para obtener la información de la partitura.
+        No es necesario llamar a estos métodos de forma individual, ya que el método 'extraer_df'
+        los llama internamente.
+        
+        """
+
+        #Métodos que dan la info que necesita de la partitura
+        self.chordify()
+        self.asignar_intervalos()
+        self.extraer_acordes()
+        acordes = self.acordes
+
+
+        for i in acordes:
+            # self.notas.append(i.name + str(i.octave))  #Nombre de las notas
+            self.notas.append([ j.name + str(j.octave)    for j in i.notes])
+            self.beats.append(i.beat)        #Beat (pulso) del compás en el que está el acorde
+            self.intervalos.append([int(l.text) for l in i.lyrics]) #Intervalos de las nota del acorde
+            self.compas.append(i.measureNumber) #Número de compás
+            self.division.append(i.duration.quarterLength) #Division
+            self.tipo_div.append(i.duration.type)
+
+        self.df = pd.DataFrame({'Notas':self.notas, 'Intervalos':self.intervalos, 'Beat':self.beats,
+                                'Compás':self.compas, 'Duración':self.division, 'Tipo':self.tipo_div})
+        
+        return self.df
+    
+    
+
