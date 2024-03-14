@@ -36,6 +36,9 @@ class cuartas:
         self.beats = []
         self.notas = []
         self.intervalos = []
+        self.num_semitonos_intervalo = []
+        self.nombre_intervalos_sim = []
+        self.nombre_intervalos_com = []
         self.compas = []
         self.division = []
         self.tipo_div = []
@@ -105,7 +108,7 @@ class cuartas:
     #             self.intervalos.append(int(l.text))
 
     #     return self.intervalos   
-    
+
     def extraer_df(self):
 
         """
@@ -138,7 +141,23 @@ class cuartas:
             self.division.append(i.duration.quarterLength) #Division
             self.tipo_div.append(i.duration.type)
 
-        self.df = pd.DataFrame({'Notas':self.notas, 'Intervalos':self.intervalos, 'Beat':self.beats,
+            #Nombres intervalos
+            notas_inter_com = []
+            notas_inter_sim = []
+            semitonos = []
+            for j in range(len(i)-1):   #Número de intervalos = notas -1 
+                n1 = i[0]
+                n2 = i[j+1]
+                intervalo = interval.notesToInterval(n1, n2)
+                notas_inter_com.append(intervalo.semiSimpleNiceName)
+                notas_inter_sim.append(intervalo.semiSimpleName)
+                semitonos.append(intervalo.semitones)
+            self.nombre_intervalos_com.append(notas_inter_com)
+            self.nombre_intervalos_sim.append(notas_inter_sim)
+            self.num_semitonos_intervalo.append(semitonos)
+
+
+        self.df = pd.DataFrame({'Notas':self.notas, 'Intervalos':self.intervalos, 'Nombre intervalo simplificado':self.nombre_intervalos_sim, 'Num_semitonos':self.num_semitonos_intervalo, 'Nombre intervalo completo':self.nombre_intervalos_com, 'Beat':self.beats,
                                 'Compás':self.compas, 'Duración':self.division, 'Tipo':self.tipo_div})
         
         return self.df
