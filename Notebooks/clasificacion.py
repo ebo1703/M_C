@@ -385,6 +385,64 @@ def condiciones_paso(bajos, BB_n, BA_n, N4sb, N6sb, V4b, V6b, V4a, V6a):
     return seg_m_b, seg_m_a, cond3, cond4, suma
 
 
+def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a):
+    
+    """
+    Esta función permite calcular las condiciones para verificar si el acorde
+    6/4 es cadencial.
+
+
+    """
+
+    inter_cuarta = []
+    inter_sexta = []
+    
+
+    for i in range(len(bajos)):
+
+        #Cuartas
+        n4sb = N4sb[i]   # Nota de la voz de la cuarta del acorde 6/4 
+
+        #n4bb = V4b[i][-1]  # Nota de la cuarta antes del acorde 6/4
+    
+        n4ba = V4a[i][-1]  # Nota de la cuarta después del acorde 6/4
+
+
+        #Sextas
+        n6sb = N6sb[i]   # Nota de la voz de la sexta del acorde 6/4
+        n6ba = V6a[i][-1]  # Nota de la sexta después del acorde 6/4
+
+
+        #Definir las notas con music21
+
+        sb4 = note.Note(n4sb)  
+        ba4 = note.Note(n4ba)
+        sb6 = note.Note(n6sb)
+        ba6 = note.Note(n6ba)
+
+        #Definir los intervalos con music21
+
+        int_b = interval.notesToInterval(sb4,ba4)
+        int_a = interval.notesToInterval(sb6,ba6)
+
+        #Agregar los intervalos a las listas 
+        inter_cuarta.append(int_a.semiSimpleName)
+        inter_sexta.append(int_b.semiSimpleName)
+
+    terceras = [i == 'M3' for i in inter_cuarta]  #Verificar si son segunda menor (primera condición)
+    sextas = [i == 'P5' for i in inter_sexta]  #Verificar si son segunda menor (segunda condición)
+
+    #Convertir a numpy array
+    terceras, sextas = np.array(terceras), np.array(sextas) 
+    
+
+    #Sumar todas las condiciones
+
+    suma = np.sum([terceras,sextas],axis=0)
+
+    return terceras ,  sextas , suma , inter_cuarta , inter_sexta
+
+
 def acorde6_4_paso(dataframe):
 
     """
@@ -426,4 +484,34 @@ def acorde6_4_paso(dataframe):
 
     #Crear un dataframe con la información de los acordes 6/4
     df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Condición1': seg_m_b, 'Condición2': seg_m_a, 'Condición3': cond3, 'Condición4': cond4, 'Suma': suma})
+    return df_condiciones
+
+
+def acorde6_4_cadencial(dataframe):
+
+
+    #Encontrar los acordes 6/4
+    indices, df_filtrado = encontrar_64(dataframe)
+
+    #Extraer las notas del bajo de los acordes 6/4
+    bajos = extraer_bajo(df_filtrado)
+
+    #Encontrar las voces que contienen el intervalo 6/4
+    ind4, ind6 = voces_64(df_filtrado)
+
+    #Extraer las notas de la cuarta y sexta de los acordes 6/4
+    N4sb, N6sb = extraer_n4_n6(df_filtrado,ind4,ind6)
+
+    #Extraer las notas del bajo antes y después de los acordes 6/4
+    BB_n, BA_n = notas_bajos(dataframe,indices)
+
+    #Extraer las notas de las voces antes y después de los acordes 6/4
+    voces4b, voces4a, voces6b, voces6a = notas_voces(dataframe,ind4,ind6,BB_n,BA_n,indices)
+
+    #Verificar condiciones para el 6/4 de cadencial
+    terceras ,  sextas , suma , inter_cuarta , inter_sexta = condiciones_cadencial(bajos,N4sb,N6sb,voces4a,voces6a)
+
+    #Crear un dataframe con la información de los acordes 6/4
+
+    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Terceras': terceras, 'Sextas': sextas, 'inter_3': inter_cuarta, 'inter_5': inter_sexta, 'Suma': suma})
     return df_condiciones
