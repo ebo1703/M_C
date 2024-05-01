@@ -148,6 +148,11 @@ def notas_bajos(df,lista_indice):
 
         BB_notas = []
         for i in range(1,5):
+            if j-1 < 0:  #Para evitar que se salga del rango
+                break    #Esto sería el caso en el que el 6/4 esté en el primer acorde del df
+                         #por lo tanto no habpría acorde antes de este
+
+
             NB = df.iloc[j]['Notas'][0][0]
             BB = df.iloc[j-i]['Notas'][0][0]
             
@@ -160,8 +165,13 @@ def notas_bajos(df,lista_indice):
         BA_notas = []
 
         for i in range(1,5):
+            if j +i > (len(df) - 1):  #Para evitar que se salga del rango
+                break    #Esto sería el caso en el que el 6/4 esté en el último acorde del df
+                            #por lo tanto no habría acorde después de este
+
+                    
             NB = df.iloc[j]['Notas'][0][0]
-            BA = df.iloc[j+i]['Notas'][0][0]
+            BA = df.iloc[j+i]['Notas'][0][0] 
 
             # BB_notas.append(NB)
             BA_notas.append(BA)
