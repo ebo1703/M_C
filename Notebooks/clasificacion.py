@@ -68,7 +68,7 @@ def extraer_bajo(dataframe):
     nuevalista = dataframe['Notas']
     bajos = []
     for lista in nuevalista:
-        bajos.append(lista[0][0])
+        bajos.append(lista[0])###3
 
     return bajos
 
@@ -152,8 +152,8 @@ def notas_bajos(df,lista_indice):
                          #por lo tanto no habpría acorde antes de este
 
 
-            NB = df.iloc[j]['Notas'][0][0]
-            BB = df.iloc[j-i]['Notas'][0][0]
+            NB = df.iloc[j]['Notas'][0]###
+            BB = df.iloc[j-i]['Notas'][0]###
             
             
             # BB_notas.append(NB)
@@ -170,8 +170,8 @@ def notas_bajos(df,lista_indice):
                             #por lo tanto no habría acorde después de este
 
                     
-            NB = df.iloc[j]['Notas'][0][0]
-            BA = df.iloc[j+i]['Notas'][0][0] 
+            NB = df.iloc[j]['Notas'][0]###
+            BA = df.iloc[j+i]['Notas'][0]### 
 
             # BB_notas.append(NB)
             BA_notas.append(BA)
@@ -189,8 +189,8 @@ def notas_bajos_bordadura(df,lista_indice):
     BA_bordadura = []
 
     for j in lista_indice:
-        BB_bordadura.append(df.iloc[j-1]['Notas'][0][:-1])
-        BA_bordadura.append(df.iloc[j+1]['Notas'][0][:-1])
+        BB_bordadura.append(df.iloc[j-1]['Notas'][0])###
+        BA_bordadura.append(df.iloc[j+1]['Notas'][0])###
 
     return BB_bordadura , BA_bordadura 
 
@@ -202,9 +202,8 @@ def notas_bajos_cadencial(df,lista_indice):
     BA_cadencial = []
 
     for j in lista_indice:
-        BB_cadencial.append(df.iloc[j-1]['Notas'][0][:-1])
-        BA_cadencial.append(df.iloc[j+1]['Notas'][0][:-1])
-
+        BB_cadencial.append(df.iloc[j-1]['Notas'][0])
+        BA_cadencial.append(df.iloc[j+1]['Notas'][0])
     return BB_cadencial , BA_cadencial 
 
 
@@ -270,8 +269,8 @@ def notas_voces(df,ind4,ind6,BB_n,BA_n,lista_64):
         
         
         for i in range(1,len(BB_n[j])+1):
-            N4b = df.iloc[lista_64[j]-i]['Notas'][ind4[j]][:-1]
-            N6b = df.iloc[lista_64[j]-i]['Notas'][ind6[j]][:-1]
+            N4b = df.iloc[lista_64[j]-i]['Notas'][ind4[j]]###
+            N6b = df.iloc[lista_64[j]-i]['Notas'][ind6[j]]###
             
             notas4b.append(N4b)
             notas6b.append(N6b)
@@ -284,8 +283,8 @@ def notas_voces(df,ind4,ind6,BB_n,BA_n,lista_64):
         notas6a = []
 
         for i in range(1,len(BA_n[j])+1):
-            N4a = df.iloc[lista_64[j]+i]['Notas'][ind4[j]][:-1]
-            N6a = df.iloc[lista_64[j]+i]['Notas'][ind6[j]][:-1]
+            N4a = df.iloc[lista_64[j]+i]['Notas'][ind4[j]]###
+            N6a = df.iloc[lista_64[j]+i]['Notas'][ind6[j]]###
             notas4a.append(N4a)
             notas6a.append(N6a)
     
@@ -349,37 +348,36 @@ def notas_voces_cadencial(df,ind4,ind6,BB_n,BA_n,lista_64):
 
 
     for j in range(len(ind4)):
-        notas4b = []
-        notas6b = []
-        Notas4 = []
-        Notas6 = []
+        # notas4b = []
+        # notas6b = []
+        # Notas4 = []
+        # Notas6 = []
 
         
         
         #Notas inmediatamente antes del acorde 6/4
-        N4b = df.iloc[lista_64[j]-1]['Notas'][ind4[j]][:-1]
-        N6b = df.iloc[lista_64[j]-1]['Notas'][ind6[j]][:-1]
+        N4b = df.iloc[lista_64[j]-1]['Notas'][ind4[j]]###
+        N6b = df.iloc[lista_64[j]-1]['Notas'][ind6[j]]
         
-        notas4b.append(N4b)
-        notas6b.append(N6b)
+        # notas4b.append(N4b)
+        # notas6b.append(N6b)
 
             
-        voces4b.append(notas4b)
-        voces6b.append(notas6b)
+        voces4b.append(N4b)
+        voces6b.append(N6b)
 
-        notas4a = []
-        notas6a = []
+        # notas4a = []
+        # notas6a = []
 
         #Notas inmediatamente después del acorde 6/4
-        N4a = df.iloc[lista_64[j]+1]['Notas'][ind4[j]][:-1]
-        N6a = df.iloc[lista_64[j]+1]['Notas'][ind6[j]][:-1]
-        notas4a.append(N4a)
-        notas6a.append(N6a)
+        N4a = df.iloc[lista_64[j]+1]['Notas'][ind4[j]]
+        N6a = df.iloc[lista_64[j]+1]['Notas'][ind6[j]]
+        # notas4a.append(N4a)
+        # notas6a.append(N6a)
     
             
-        voces4a.append(notas4a)
-        voces6a.append(notas6a)
-
+        voces4a.append(N4a)
+        voces6a.append(N6a)
     return voces4b, voces4a, voces6b, voces6a
 #Extraer nota del bajo de los acordes 
 
@@ -423,12 +421,10 @@ def extraer_n4_n6(dataframe,indice4,indice6):
     cuartas = []
     sextas = []
     for i in range(0,len(indice4)):
-        not4 = dataframe.iloc[i]['Notas'][indice4[i]][:-1]
-        not6 = dataframe.iloc[i]['Notas'][indice6[i]][:-1]
+        not4 = dataframe.iloc[i]['Notas'][indice4[i]]###
+        not6 = dataframe.iloc[i]['Notas'][indice6[i]]###
         cuartas.append(not4) 
         sextas.append(not6)  
-    
-    print(cuartas, sextas)  
     return cuartas, sextas 
 
 
@@ -468,14 +464,14 @@ def condiciones_paso(bajos, BB_n, BA_n, N4sb, N6sb, V4b, V6b, V4a, V6a):
 
         #Definir las notas con music21
 
-        bb = note.Note(bb)  
-        ba = note.Note(ba)
-        nb = note.Note(nb)
+        bb = pitch.Pitch(bb)  
+        ba = pitch.Pitch(ba)
+        nb = pitch.Pitch(nb)
 
         #Definir los intervalos con music21
 
         int_b = interval.notesToInterval(bb,nb)
-        int_a = interval.notesToInterval(ba,nb)
+        int_a = interval.notesToInterval(nb,ba)
 
         #Agregar los intervalos a las listas 
         inter_BA.append(int_a.semiSimpleName)
@@ -491,8 +487,10 @@ def condiciones_paso(bajos, BB_n, BA_n, N4sb, N6sb, V4b, V6b, V4a, V6a):
         else:
             cond4.append(False)
 
-    seg_m_b = [i == 'm2' for i in inter_BB]  #Verificar si son segunda menor (primera condición)
-    seg_m_a = [i == 'm2' for i in inter_BA]  #Verificar si son segunda menor (segunda condición)
+    seg_m_b = [(i == 'm2') or ( i == 'M2') for i in inter_BB]  #Verificar si son segunda menor (primera condición)
+    seg_m_a = [(i == 'm2') or ( i == 'M2') for i in inter_BA]  #Verificar si son segunda menor (segunda condición)
+    
+
 
     #Convertir a numpy array
     seg_m_b, seg_m_a = np.array(seg_m_b), np.array(seg_m_a) 
@@ -523,26 +521,27 @@ def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_cadencial):
     for i in range(len(bajos)):
 
         #Cuartas
-        n4sb = N4sb[i][0]   # Nota de la voz de la cuarta del acorde 6/4 
+        n4sb = N4sb[i]###   # Nota de la voz de la cuarta del acorde 6/4 
 
         #n4bb = V4b[i][-1]  # Nota de la cuarta antes del acorde 6/4
-    
-        n4ba = V4a[i][0]  # Nota de la cuarta después del acorde 6/4
+        
+        n4ba = V4a[i]##3  # Nota de la cuarta después del acorde 6/4
 
 
         #Sextas
-        n6sb = N6sb[i][0]  # Nota de la voz de la sexta del acorde 6/4
-        n6ba = V6a[i][0] # Nota de la sexta después del acorde 6/4
+        n6sb = N6sb[i]###  # Nota de la voz de la sexta del acorde 6/4
+        n6ba = V6a[i]### # Nota de la sexta después del acorde 6/4
 
         #Bajos
         nb = bajos[i]     # Nota del bajo del acorde 6/4
         #Definir las notas con music21
+        
+        sb4 = pitch.Pitch(n4sb) 
 
-        sb4 = note.Note(n4sb)  
-        ba4 = note.Note(n4ba)
-        sb6 = note.Note(n6sb)
-        ba6 = note.Note(n6ba)
-        nb = note.Note(nb)
+        ba4 = pitch.Pitch(n4ba)
+        sb6 = pitch.Pitch(n6sb)
+        ba6 = pitch.Pitch(n6ba)
+        nb = pitch.Pitch(nb)
 
         #Definir los intervalos con music21
 
@@ -554,9 +553,9 @@ def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_cadencial):
         inter_sexta.append(int_a.semiSimpleName)
 
 
-        print("nombre intervalo", int_a.reverse().name)
-        print(f"inicio: {int_a.noteStart}  ,   fin : {int_a.noteEnd}")
-        print(nb)
+        # print("nombre intervalo", int_a.semiSimpleName)
+        # print(f"inicio: {int_a.noteStart}  ,   fin : {int_a.noteEnd}")
+        # print(nb)
     # if (inter_cuarta[i] == 'm3') or (inter_cuarta[i] == 'M3'):
     #     terceras.append(True)
     # else:
@@ -579,7 +578,7 @@ def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_cadencial):
 
     suma = np.sum([terceras,sextas],axis=0)
 
-    return terceras ,  sextas , suma , inter_cuarta , inter_sexta
+    return terceras ,  sextas , suma 
 
 def condiciones_bordadura(bajos, BB_bordadura, BA_bordadura, N4sb, N6sb, V4b, V6b, V4a, V6a):
     
@@ -593,7 +592,7 @@ def condiciones_bordadura(bajos, BB_bordadura, BA_bordadura, N4sb, N6sb, V4b, V6
     cond_bajos = []
     cond_cuartas = []
     cond_sextas = []
-    error4 = []
+    
 
 
     # #Listas auxiliares
@@ -615,11 +614,11 @@ def condiciones_bordadura(bajos, BB_bordadura, BA_bordadura, N4sb, N6sb, V4b, V6
         n4sb = N4sb[i]   # Nota de la voz de la cuarta del acorde 6/4 
         n6sb = N6sb[i]   # Nota de la voz de la sexta del acorde 6/4
 
-        n4bb = V4b[i][-1]  # Nota de la cuarta antes del acorde 6/4
-        n6bb = V6b[i][-1]  # Nota de la sexta antes del acorde 6/4
+        n4bb = V4b[i]###  # Nota de la cuarta antes del acorde 6/4
+        n6bb = V6b[i]###  # Nota de la sexta antes del acorde 6/4
 
-        n4ba = V4a[i][-1]  # Nota de la cuarta después del acorde 6/4
-        n6ba = V6a[i][-1]  # Nota de la sexta después del acorde 6/4
+        n4ba = V4a[i]###  # Nota de la cuarta después del acorde 6/4
+        n6ba = V6a[i]###  # Nota de la sexta después del acorde 6/4
 
         if (bb==ba) and (bb==nb):
             cond_bajos.append(True) #???
@@ -628,15 +627,15 @@ def condiciones_bordadura(bajos, BB_bordadura, BA_bordadura, N4sb, N6sb, V4b, V6
         
         #Definir las notas con music21
 
-        sb4 = note.Note(n4sb)  
-        ba4 = note.Note(n4ba)
-        bb4 = note.Note(n4bb)
-        bb6 = note.Note(n6bb)
-        sb6 = note.Note(n6sb)
-        ba6 = note.Note(n6ba)
+        sb4 = pitch.Pitch(n4sb)  
+        ba4 = pitch.Pitch(n4ba)
+        bb4 = pitch.Pitch(n4bb)
+        bb6 = pitch.Pitch(n6bb)
+        sb6 = pitch.Pitch(n6sb)
+        ba6 = pitch.Pitch(n6ba)
 
         #Definir los intervalos con music21
-        print(bb4 , sb4 , ba4)
+
         int4_1 = interval.notesToInterval(bb4,sb4)
         int4_2 = interval.notesToInterval(bb4,ba4)
 
@@ -671,7 +670,6 @@ def condiciones_bordadura(bajos, BB_bordadura, BA_bordadura, N4sb, N6sb, V4b, V6
         else:
             cond_sextas.append(False) 
 
-        error4.append(inter1_cuarta)
         
     cond_bajos, cond_cuartas, cond_sextas =  np.array(cond_bajos), np.array(cond_cuartas), np.array(cond_sextas)   
     
@@ -680,7 +678,7 @@ def condiciones_bordadura(bajos, BB_bordadura, BA_bordadura, N4sb, N6sb, V4b, V6
 
     suma = np.sum([cond_bajos, cond_cuartas, cond_sextas],axis=0)
 
-    return cond_bajos, cond_cuartas, cond_sextas, suma, error4
+    return cond_bajos, cond_cuartas, cond_sextas, suma
 
 def acorde6_4_bordadura(dataframe):
 
@@ -719,14 +717,14 @@ def acorde6_4_bordadura(dataframe):
 
     #Extraer las notas de la cuarta y sexta de los acordes 6/4
     N4sb, N6sb = extraer_n4_n6(df_filtrado,ind4,ind6)
-    print(N4sb, N6sb)
+
 
     #Verificar las condiciones de paso
-    cond_bajos, cond_cuartas, cond_sextas, suma, error4 = condiciones_bordadura(bajos, BB_bordadura, BA_bordadura, N4sb, N6sb, voces4b, voces6b, voces4a, voces6a)
+    cond_bajos, cond_cuartas, cond_sextas, suma = condiciones_bordadura(bajos, BB_bordadura, BA_bordadura, N4sb, N6sb, voces4b, voces6b, voces4a, voces6a)
 
 
     #Crear un dataframe con la información de los acordes 6/4
-    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Mismo bajo': cond_bajos , 'Condición cuartas': cond_cuartas, 'Condición sextas': cond_sextas, 'Suma': suma, "error":error4})
+    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Mismo bajo': cond_bajos , 'Condición cuartas': cond_cuartas, 'Condición sextas': cond_sextas, 'Suma': suma})
 
     return df_condiciones
 
@@ -802,9 +800,9 @@ def acorde6_4_cadencial(dataframe):
     voces4b, voces4a, voces6b, voces6a = notas_voces_cadencial(dataframe,ind4,ind6,BB_n,BA_n,indices)
 
     #Verificar condiciones para el 6/4 de cadencial
-    terceras ,  sextas , suma , inter_cuarta , inter_sexta = condiciones_cadencial(bajos,N4sb,N6sb,voces4a,voces6a, BA_cadencial)
+    terceras ,  sextas , suma = condiciones_cadencial(bajos,N4sb,N6sb,voces4a,voces6a, BA_cadencial)
 
     #Crear un dataframe con la información de los acordes 6/4
 
-    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Terceras': terceras, 'Sextas': sextas, 'inter_3': inter_cuarta, 'inter_5': inter_sexta, 'Suma': suma})
+    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Terceras': terceras, 'Sextas': sextas, 'Suma': suma})
     return df_condiciones
