@@ -504,7 +504,7 @@ def condiciones_paso(bajos, BB_n, BA_n, N4sb, N6sb, V4b, V6b, V4a, V6a):
     return seg_m_b, seg_m_a, cond3, cond4, suma
 
 
-def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_cadencial):
+def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_np):
     
     """
     Esta función permite calcular las condiciones para verificar si el acorde
@@ -516,10 +516,15 @@ def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_cadencial):
     inter_cuarta = []
     inter_sexta = []
     terceras = []
-    sextas = []    
+    sextas = []  
+    cond_quinta_bajo = [] 
+    lista_quintas1 = []
+    lista_quintas2 = []
 
     for i in range(len(bajos)):
 
+        ba = BA_np[i][-1]    # Nota del bajo después del acorde 6/4, con BA != NB
+        # print(ba,BA_np,i)
         #Cuartas
         n4sb = N4sb[i]###   # Nota de la voz de la cuarta del acorde 6/4 
 
@@ -533,7 +538,7 @@ def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_cadencial):
         n6ba = V6a[i]### # Nota de la sexta después del acorde 6/4
 
         #Bajos
-        nb = bajos[i]     # Nota del bajo del acorde 6/4
+        nb = bajos[i]   # Nota del bajo del acorde 6/4
         #Definir las notas con music21
         
         sb4 = pitch.Pitch(n4sb) 
@@ -542,16 +547,25 @@ def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_cadencial):
         sb6 = pitch.Pitch(n6sb)
         ba6 = pitch.Pitch(n6ba)
         nb = pitch.Pitch(nb)
+        nba = pitch.Pitch(ba) #cuando el bajo cambió
 
         #Definir los intervalos con music21
 
         int_b = interval.Interval(nb,ba4)
         int_a = interval.Interval(nb,ba6)
+
+        #Posibles intervalos para la condición de los bajos ?????? PREGUNTAR
+        int5_r = interval.Interval(nba, nb)
         
         #Agregar los intervalos a las listas 
         inter_cuarta.append(int_b.semiSimpleName)
         inter_sexta.append(int_a.semiSimpleName)
 
+        lista_quintas1.append(int5_r.semiSimpleName)
+      
+    
+    quintas1 = [i == 'P5' for i in lista_quintas1]
+    
 
         # print("nombre intervalo", int_a.semiSimpleName)
         # print(f"inicio: {int_a.noteStart}  ,   fin : {int_a.noteEnd}")
@@ -567,18 +581,19 @@ def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_cadencial):
     # else:
     #     sextas.append(False)
 
+
     terceras = [i == 'M3' or i == 'm3' for i in inter_cuarta]  #Verificar si son  (primera condición)
     sextas = [i == 'P5' for i in inter_sexta]  #Verificar si son segunda menor (segunda condición)
 
     #Convertir a numpy array
-    terceras, sextas = np.array(terceras), np.array(sextas) 
+    terceras, sextas, condiciones5 = np.array(terceras), np.array(sextas), np.array(quintas1)
  
 
     #Sumar todas las condiciones
 
-    suma = np.sum([terceras,sextas],axis=0)
+    suma = np.sum([terceras,sextas, quintas1],axis=0)
 
-    return terceras ,  sextas , suma 
+    return terceras ,  sextas , condiciones5, suma 
 
 def condiciones_bordadura(bajos, BB_bordadura, BA_bordadura, N4sb, N6sb, V4b, V6b, V4a, V6a):
     
@@ -784,8 +799,8 @@ def acorde6_4_cadencial(dataframe):
     #Extraer las notas del bajo de los acordes 6/4
     bajos = extraer_bajo(df_filtrado)
 
-    #Bajos cadencial
-    BB_cadencial, BA_cadencial = notas_bajos_cadencial(dataframe,indices)
+    #Bajos tipo paso:
+    BB_np,BA_np = notas_bajos(dataframe,indices)
 
     #Encontrar las voces que contienen el intervalo 6/4
     ind4, ind6 = voces_64(df_filtrado)
@@ -800,9 +815,9 @@ def acorde6_4_cadencial(dataframe):
     voces4b, voces4a, voces6b, voces6a = notas_voces_cadencial(dataframe,ind4,ind6,BB_n,BA_n,indices)
 
     #Verificar condiciones para el 6/4 de cadencial
-    terceras ,  sextas , suma = condiciones_cadencial(bajos,N4sb,N6sb,voces4a,voces6a, BA_cadencial)
+    terceras ,  sextas , condiciones5, suma = condiciones_cadencial(bajos,N4sb,N6sb,voces4a,voces6a, BA_np)
 
     #Crear un dataframe con la información de los acordes 6/4
 
-    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Terceras': terceras, 'Sextas': sextas, 'Suma': suma})
+    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Terceras': terceras, 'Sextas': sextas, 'Quintas': condiciones5, 'Suma': suma})
     return df_condiciones
