@@ -504,7 +504,8 @@ def condiciones_paso(bajos, BB_n, BA_n, N4sb, N6sb, V4b, V6b, V4a, V6a):
     return seg_m_b, seg_m_a, cond3, cond4, suma
 
 
-def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_np):
+def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_np,BB_n):
+
     
     """
     Esta función permite calcular las condiciones para verificar si el acorde
@@ -517,14 +518,18 @@ def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_np):
     inter_sexta = []
     terceras = []
     sextas = []  
-    cond_quinta_bajo = [] 
     lista_quintas1 = []
-    lista_quintas2 = []
+    bajos_antes_diferente = []
 
+
+    
     for i in range(len(bajos)):
 
-        ba = BA_np[i][-1]    # Nota del bajo después del acorde 6/4, con BA != NB
+        ba = BA_np[i][-1]    # Nota del bajo (de paso --> np) después del acorde 6/4, con BA != NB
         # print(ba,BA_np,i)
+        bb = BB_n[i] #Bajos antes 
+        
+
         #Cuartas
         n4sb = N4sb[i]###   # Nota de la voz de la cuarta del acorde 6/4 
 
@@ -539,8 +544,8 @@ def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_np):
 
         #Bajos
         nb = bajos[i]   # Nota del bajo del acorde 6/4
+        nb1 = bajos[i]   # Nota del bajo del acorde 6/4
         #Definir las notas con music21
-        
         sb4 = pitch.Pitch(n4sb) 
 
         ba4 = pitch.Pitch(n4ba)
@@ -562,38 +567,32 @@ def condiciones_cadencial(bajos, N4sb, N6sb, V4a, V6a, BA_np):
         inter_sexta.append(int_a.semiSimpleName)
 
         lista_quintas1.append(int5_r.semiSimpleName)
-      
+
+        # listabajo.append(nb1)
+        # listabajoantes.append(bb)
     
+
+      #Condición de que el bajo antes del bajo de la cuarta, sea diferente
+        if (nb1 != bb):
+            bajos_antes_diferente.append(True)
+        else:
+            bajos_antes_diferente.append(False)
+
     quintas1 = [i == 'P5' for i in lista_quintas1]
     
-
-        # print("nombre intervalo", int_a.semiSimpleName)
-        # print(f"inicio: {int_a.noteStart}  ,   fin : {int_a.noteEnd}")
-        # print(nb)
-    # if (inter_cuarta[i] == 'm3') or (inter_cuarta[i] == 'M3'):
-    #     terceras.append(True)
-    # else:
-    #     terceras.append(False)
-    
-    # #Condicion sextas
-    # if (inter_sexta[i] == 'P5'): #and (inter_sexta == 'P1'):
-    #     sextas.append(True)
-    # else:
-    #     sextas.append(False)
-
 
     terceras = [i == 'M3' or i == 'm3' for i in inter_cuarta]  #Verificar si son  (primera condición)
     sextas = [i == 'P5' for i in inter_sexta]  #Verificar si son segunda menor (segunda condición)
 
     #Convertir a numpy array
-    terceras, sextas, condiciones5 = np.array(terceras), np.array(sextas), np.array(quintas1)
+    terceras, sextas, condiciones5, bajos_antes_diferente = np.array(terceras), np.array(sextas), np.array(quintas1), np.array(bajos_antes_diferente)
  
 
     #Sumar todas las condiciones
 
-    suma = np.sum([terceras,sextas, quintas1],axis=0)
+    suma = np.sum([terceras,sextas, quintas1, bajos_antes_diferente],axis=0)
 
-    return terceras ,  sextas , condiciones5, suma 
+    return terceras ,  sextas , condiciones5, bajos_antes_diferente, suma 
 
 def condiciones_bordadura(bajos, BB_bordadura, BA_bordadura, N4sb, N6sb, V4b, V6b, V4a, V6a):
     
@@ -815,9 +814,10 @@ def acorde6_4_cadencial(dataframe):
     voces4b, voces4a, voces6b, voces6a = notas_voces_cadencial(dataframe,ind4,ind6,BB_n,BA_n,indices)
 
     #Verificar condiciones para el 6/4 de cadencial
-    terceras ,  sextas , condiciones5, suma = condiciones_cadencial(bajos,N4sb,N6sb,voces4a,voces6a, BA_np)
+    terceras ,  sextas , condiciones5, bajosantes, suma = condiciones_cadencial(bajos,N4sb,N6sb,voces4a,voces6a, BA_np, BB_n)
 
     #Crear un dataframe con la información de los acordes 6/4
 
-    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Terceras': terceras, 'Sextas': sextas, 'Quintas': condiciones5, 'Suma': suma})
+    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Terceras': terceras, 'Sextas': sextas, 'Quintas': condiciones5,
+                                   'Bajos antes diferente': bajosantes, 'Suma': suma})
     return df_condiciones
