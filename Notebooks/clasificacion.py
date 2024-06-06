@@ -910,15 +910,18 @@ def dataframe_clasificacion(dataframe):
 
     #----------------------------------------
     #Cambios en el dataframe para hacer el merge
+
+    #Copiar el dataframe original
+    dataframe = dataframe.copy()
     dataframe.rename(columns={'Notas':'Acordes'}, inplace=True)
-    # dataframe['#'] = dataframe.index + 1  #Para que arranque en 1
+    dataframe['#'] = dataframe.index + 1  #Para que arranque en 1
 
     #Convertir la columna de acordes en string
     dataframe = acordes_to_string(dataframe)
 
     #Dejar las columnas de interes
 
-    dataframe = dataframe[['Acordes','Compás','Beat','Duración']]
+    dataframe = dataframe[['#','Acordes','Compás','Beat','Duración']]
     
 
     #----------------------------------------
@@ -930,6 +933,9 @@ def dataframe_clasificacion(dataframe):
     df_clasificacion = pd.merge(df_clasificacion, df_cadencial, on='Acordes', how='inner')
     df_clasificacion = pd.merge(df_clasificacion, df_bordadura, on='Acordes', how='inner')
 
+    #Borrar duplicados
+    df_clasificacion.drop_duplicates(subset=['Acordes', 'Compás', 'Beat', 'Duración'],inplace=True)
+     
 
     #Asignar si corresponde a un acorde 6/4 de paso, cadencial o bordadura
 
