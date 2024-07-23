@@ -738,7 +738,7 @@ def acorde6_4_bordadura(dataframe):
 
 
     #Crear un dataframe con la información de los acordes 6/4
-    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Mismo bajo': cond_bajos , 'Condición cuartas': cond_cuartas, 'Condición sextas': cond_sextas, 'Suma': suma})
+    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Mismo bajo del 6/4': cond_bajos , 'Voz 4ª baja y sube': cond_cuartas, 'Voz 6ª baja y sube': cond_sextas, 'Suma': suma})
 
     return df_condiciones
 
@@ -783,7 +783,7 @@ def acorde6_4_paso(dataframe):
 
 
     #Crear un dataframe con la información de los acordes 6/4
-    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Condición1': seg_m_b, 'Condición2': seg_m_a, 'Condición3': cond3, 'Condición4': cond4, 'Suma': suma})
+    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Intervalo_bajo pre 6/4: 2ª': seg_m_b, 'Intervalo_bajo post 6/4: 2ª': seg_m_a, 'Bajo AntesYdespues diferente': cond3, 'Voz 4ª igual AntesyDespues': cond4, 'Suma': suma})
     return df_condiciones
 
 
@@ -818,7 +818,7 @@ def acorde6_4_cadencial(dataframe):
 
     #Crear un dataframe con la información de los acordes 6/4
 
-    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Terceras': terceras, 'Sextas': sextas, 'Quintas': condiciones5,
+    df_condiciones = pd.DataFrame({'Acordes': df_filtrado['Notas'], 'Voz 4ª  va a 3ª': terceras, 'Voz 6ª va a 5ª': sextas, 'Intervalo 5ª bajo': condiciones5,
                                    'Bajos antes diferente': bajosantes, 'Suma': suma})
     return df_condiciones
 
@@ -877,6 +877,7 @@ def dataframe_clasificacion(dataframe):
 
     #Convertir la columna de acordes en string
     df_paso = acordes_to_string(df_paso)
+    df_paso = df_paso[['Acordes', 'Suma_paso (n/4)']]
 
 
 
@@ -891,7 +892,7 @@ def dataframe_clasificacion(dataframe):
 
     #Convertir la columna de acordes en string
     df_cadencial = acordes_to_string(df_cadencial)
-
+    df_cadencial = df_cadencial[['Acordes', 'Suma_cadencial (n/4)']]
 
   
     #----------------------------------------
@@ -906,22 +907,21 @@ def dataframe_clasificacion(dataframe):
 
     #Convertir la columna de acordes en string
     df_bordadura = acordes_to_string(df_bordadura)
+    df_bordadura = df_bordadura[['Acordes', 'Suma_bordadura (n/3)']]
+
 
 
     #----------------------------------------
     #Cambios en el dataframe para hacer el merge
-
-    #Copiar el dataframe original
-    dataframe = dataframe.copy()
     dataframe.rename(columns={'Notas':'Acordes'}, inplace=True)
-    dataframe['#'] = dataframe.index + 1  #Para que arranque en 1
+    # dataframe['#'] = dataframe.index + 1  #Para que arranque en 1
 
     #Convertir la columna de acordes en string
     dataframe = acordes_to_string(dataframe)
 
     #Dejar las columnas de interes
 
-    dataframe = dataframe[['#','Acordes','Compás','Beat','Duración']]
+    dataframe = dataframe[['Acordes','Compás','Beat','Duración']]
     
 
     #----------------------------------------
@@ -933,22 +933,27 @@ def dataframe_clasificacion(dataframe):
     df_clasificacion = pd.merge(df_clasificacion, df_cadencial, on='Acordes', how='inner')
     df_clasificacion = pd.merge(df_clasificacion, df_bordadura, on='Acordes', how='inner')
 
-    #Borrar duplicados
-    df_clasificacion.drop_duplicates(subset=['Acordes', 'Compás', 'Beat', 'Duración'],inplace=True)
-     
+    # Eliminar duplicados CAMBIO 1
+    #df_clasificacion.drop_duplicates(subset=['Acordes', 'Compás', 'Beat', 'Duración'], inplace=True)
 
     #Asignar si corresponde a un acorde 6/4 de paso, cadencial o bordadura
 
     #Se asigna la clasificación si cumple todas las condiciones
     #Cuando cumple algunas se le asigna 'NI' (No identificado)
 
-    df_clasificacion['Clasificación'] = np.where((df_clasificacion['Suma_paso (n/4)'] == 4), 'Paso', 'NI')
-    df_clasificacion['Clasificación'] = np.where((df_clasificacion['Suma_cadencial (n/4)'] == 4), 'Cadencial', df_clasificacion['Clasificación'])
-    df_clasificacion['Clasificación'] = np.where((df_clasificacion['Suma_bordadura (n/3)'] == 3), 'Bordadura', df_clasificacion['Clasificación'])
+    #ORIGINAL
+    # df_clasificacion['Clasificación'] = np.where((df_clasificacion['Suma_paso (n/4)'] == 4), 'Paso', 'NI')
+    # df_clasificacion['Clasificación'] = np.where((df_clasificacion['Suma_cadencial (n/4)'] == 4), 'Cadencial', df_clasificacion['Clasificación'])
+    # df_clasificacion['Clasificación'] = np.where((df_clasificacion['Suma_bordadura (n/3)'] == 3), 'Bordadura', df_clasificacion['Clasificación'])
+
+    #CAMBIO 2
+    df_clasificacion['Clasificación'] = 'NI'
+    df_clasificacion.loc[df_clasificacion['Suma_paso (n/4)'] == 4, 'Clasificación'] = 'Paso'
+    df_clasificacion.loc[df_clasificacion['Suma_cadencial (n/4)'] == 4, 'Clasificación'] = 'Cadencial'
+    df_clasificacion.loc[df_clasificacion['Suma_bordadura (n/3)'] == 3, 'Clasificación'] = 'Bordadura'
+
 
     return df_clasificacion
-
-
 
     
 
