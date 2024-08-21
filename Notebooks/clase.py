@@ -52,15 +52,17 @@ class cuartas:
 
 
     def chordify(self):
-        
         """
         Método para realizar chordify a toda la partitura,
-        juntar todas las notas que suenan simultaneamente
-
+        juntar todas las notas que suenan simultáneamente
         """
 
-        self.s = self.s.chordify()
-        return self.s
+        try:
+            self.s = self.s.chordify()
+            return self.s
+        except Exception as e:
+            print(f"Error al realizar chordify: {e}")
+            return None
     
     def asignar_intervalos(self):
         
@@ -70,10 +72,15 @@ class cuartas:
 
         """
 
-        for c in self.s.recurse().getElementsByClass('Chord'):
-            #Esta opción es para que quedén en la misma octava 
-            # c.closedPosition(forceOctave=4, inPlace=True) 
-            c.annotateIntervals(inPlace=True)
+        try:
+            for c in self.s.recurse().getElementsByClass('Chord'):
+                #Esta opción es para que quedén en la misma octava 
+                # c.closedPosition(forceOctave=4, inPlace=True) 
+                c.annotateIntervals(inPlace=True)
+        
+        except Exception as e:
+            print(f"Error al asignar intervalos: {e}")
+            return None
 
     def mostrar_intervalos(self):
 
@@ -81,11 +88,16 @@ class cuartas:
         Método para mostar en pantalla los acordes y sus intervalos
 
         """
-        for c in self.s.recurse().getElementsByClass('Chord'):
-            print(c, end=" ")
-            for l in c.lyrics:
-                print(l.text, end=" ")
-            print()
+
+        try:
+            for c in self.s.recurse().getElementsByClass('Chord'):
+                print(c, end=" ")
+                for l in c.lyrics:
+                    print(l.text, end=" ")
+                print()
+        except Exception as e:
+            print(f"Error al mostrar los intervalos: {e}")
+            return None
 
     def extraer_acordes(self):
 
@@ -93,10 +105,13 @@ class cuartas:
         Método que guarda todos los acordes de la partitura en el 
         atributo 'acordes'.
         """
-        
-        for c in self.s.recurse().getElementsByClass('Chord'):
-            self.acordes.append(c)
-        return self.acordes
+        try:
+            for c in self.s.recurse().getElementsByClass('Chord'):
+                self.acordes.append(c)
+            return self.acordes
+        except Exception as e:
+            print(f"Error al extraer acordes: {e}")
+            return None
     
 
     #Método que no sirvió xd
@@ -124,43 +139,54 @@ class cuartas:
         los llama internamente.
         
         """
+        try:
+            # Métodos que dan la info que necesita de la partitura
+            self.chordify()
+            self.asignar_intervalos()
+            self.extraer_acordes()
 
-        #Métodos que dan la info que necesita de la partitura
-        self.chordify()
-        self.asignar_intervalos()
-        self.extraer_acordes()
-        acordes = self.acordes
+            acordes = self.acordes
 
+            for i in acordes:
+                self.notas.append([j.name + str(j.octave) for j in i.notes])
+                self.beats.append(i.beat)
+                self.intervalos.append([int(l.text) for l in i.lyrics])
+                self.compas.append(i.measureNumber)
+                self.division.append(i.duration.quarterLength)
+                self.tipo_div.append(i.duration.type)
 
-        for i in acordes:
-            # self.notas.append(i.name + str(i.octave))  #Nombre de las notas
-            self.notas.append([ j.name + str(j.octave)    for j in i.notes])
-            self.beats.append(i.beat)        #Beat (pulso) del compás en el que está el acorde
-            self.intervalos.append([int(l.text) for l in i.lyrics]) #Intervalos de las nota del acorde
-            self.compas.append(i.measureNumber) #Número de compás
-            self.division.append(i.duration.quarterLength) #Division
-            self.tipo_div.append(i.duration.type)
+                # Nombres intervalos
+                notas_inter_com = []
+                notas_inter_sim = []
+                semitonos = []
+                for j in range(len(i) - 1):  # Número de intervalos = notas -1 
+                    n1 = i[0]
+                    n2 = i[j + 1]
+                    intervalo = interval.notesToInterval(n1, n2)
+                    notas_inter_com.append(intervalo.semiSimpleNiceName)
+                    notas_inter_sim.append(intervalo.semiSimpleName)
+                    semitonos.append(intervalo.semitones)
+                self.nombre_intervalos_com.append(notas_inter_com)
+                self.nombre_intervalos_sim.append(notas_inter_sim)
+                self.num_semitonos_intervalo.append(semitonos)
 
-            #Nombres intervalos
-            notas_inter_com = []
-            notas_inter_sim = []
-            semitonos = []
-            for j in range(len(i)-1):   #Número de intervalos = notas -1 
-                n1 = i[0]
-                n2 = i[j+1]
-                intervalo = interval.notesToInterval(n1, n2)
-                notas_inter_com.append(intervalo.semiSimpleNiceName)
-                notas_inter_sim.append(intervalo.semiSimpleName)
-                semitonos.append(intervalo.semitones)
-            self.nombre_intervalos_com.append(notas_inter_com)
-            self.nombre_intervalos_sim.append(notas_inter_sim)
-            self.num_semitonos_intervalo.append(semitonos)
+            self.df = pd.DataFrame({
+                'Notas': self.notas,
+                'Intervalos': self.intervalos,
+                'Nombre intervalo simplificado': self.nombre_intervalos_sim,
+                'Num_semitonos': self.num_semitonos_intervalo,
+                'Nombre intervalo completo': self.nombre_intervalos_com,
+                'Beat': self.beats,
+                'Compás': self.compas,
+                'Duración': self.division,
+                'Tipo': self.tipo_div
+            })
 
+            return self.df
 
-        self.df = pd.DataFrame({'Notas':self.notas, 'Intervalos':self.intervalos, 'Nombre intervalo simplificado':self.nombre_intervalos_sim, 'Num_semitonos':self.num_semitonos_intervalo, 'Nombre intervalo completo':self.nombre_intervalos_com, 'Beat':self.beats,
-                                'Compás':self.compas, 'Duración':self.division, 'Tipo':self.tipo_div})
-        
-        return self.df
+        except Exception as e:
+            print(f"Error general en extraer_df: {e}")
+            return None
     
     
 
