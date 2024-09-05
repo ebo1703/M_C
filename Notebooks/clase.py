@@ -30,6 +30,8 @@ class cuartas:
 
         self.archivo = archivo  #Path de la partitura
         self.s = converter.parse(archivo) #Lectura del archivo
+        self.es_coral = self.verificar_voces()
+
 
         #Listas para guardar la info de la partitura
         self.acordes = []
@@ -42,12 +44,29 @@ class cuartas:
         self.compas = []
         self.division = []
         self.tipo_div = []
+        
+        # #condicicion de que solo sean 4 voces (para los corales).
+        # voces = self.s.parts
+        # if len(voces)==4:
+        #     return self.es_coral == True
+        # else:
+        #     return self.es_coral == False 
+
+    def verificar_voces(self):
+        voces = self.s.parts
+        if len(voces) == 4:
+            return True
+        else:
+            return False
 
     def mostrar_partitura(self):
         
         """
         Método para mostrar la partitura
         """
+
+        if not self.es_coral:
+            print("No hay 4 voces, no se puede mostrar la partitura.")
         self.s.show()
 
 
@@ -56,6 +75,9 @@ class cuartas:
         Método para realizar chordify a toda la partitura,
         juntar todas las notas que suenan simultáneamente
         """
+
+        if not self.es_coral:
+            print("No hay 4 voces, no se puede realizar chordify.")
 
         try:
             self.s = self.s.chordify()
@@ -71,6 +93,9 @@ class cuartas:
         Método para asignar los intervalos dentro de la partitura
 
         """
+        if not self.es_coral:
+            print("No hay 4 voces, no se pueden asignar los intervalos.")
+
 
         try:
             for c in self.s.recurse().getElementsByClass('Chord'):
@@ -89,6 +114,9 @@ class cuartas:
 
         """
 
+        if not self.es_coral:
+            print("No hay 4 voces, no se pueden mostrar los intervalos.")
+
         try:
             for c in self.s.recurse().getElementsByClass('Chord'):
                 print(c, end=" ")
@@ -105,6 +133,10 @@ class cuartas:
         Método que guarda todos los acordes de la partitura en el 
         atributo 'acordes'.
         """
+
+        if not self.es_coral:
+            print("No hay 4 voces, no se pueden extraer acordes")
+
         try:
             for c in self.s.recurse().getElementsByClass('Chord'):
                 self.acordes.append(c)
@@ -112,7 +144,7 @@ class cuartas:
         except Exception as e:
             print(f"Error al extraer acordes: {e}")
             return None
-    
+        
 
     #Método que no sirvió xd
     # def extraer_intervalos(self):
@@ -139,6 +171,10 @@ class cuartas:
         los llama internamente.
         
         """
+        if not self.es_coral:
+            print("No hay 4 voces, no se puede extraer el dataframe")
+
+
         try:
             # Métodos que dan la info que necesita de la partitura
             self.chordify()
